@@ -14,26 +14,26 @@ struct SortingRequest {
 }
 
 fn main() {
-    // let fake_request = SortingRequest {
-    //     unsorted_array: vec![-2, 45, 0, 11, -9],
-    //     sorted_array: vec![],
-    //     algorithm: AlgorithmKind::Bubble,
-    //     steps: vec![],
-    // };
-    //
-    // let other_fake_request = SortingRequest {
-    //     unsorted_array: vec![20, 12, 10, 15, 2],
-    //     sorted_array: vec![],
-    //     algorithm: AlgorithmKind::Selection,
-    //     steps: vec![],
-    // };
-    //
-    // let insertion_request = SortingRequest {
-    //     unsorted_array: vec![9, 5, 1, 4, 3],
-    //     sorted_array: vec![],
-    //     algorithm: AlgorithmKind::Insertion,
-    //     steps: vec![],
-    // };
+    let bubble_request = SortingRequest {
+        unsorted_array: vec![-2, 45, 0, 11, -9],
+        sorted_array: vec![],
+        algorithm: AlgorithmKind::Bubble,
+        steps: vec![],
+    };
+
+    let selection_request = SortingRequest {
+        unsorted_array: vec![20, 12, 10, 15, 2],
+        sorted_array: vec![],
+        algorithm: AlgorithmKind::Selection,
+        steps: vec![],
+    };
+
+    let insertion_request = SortingRequest {
+        unsorted_array: vec![9, 5, 1, 4, 3],
+        sorted_array: vec![],
+        algorithm: AlgorithmKind::Insertion,
+        steps: vec![],
+    };
 
     let merge_request = SortingRequest {
         unsorted_array: vec![6, 5, 12, 10, 9, 1],
@@ -42,9 +42,9 @@ fn main() {
         steps: vec![],
     };
 
-    // sort_array(fake_request);
-    // sort_array(other_fake_request);
-    // sort_array(insertion_request);
+    sort_array(bubble_request);
+    sort_array(selection_request);
+    sort_array(insertion_request);
     sort_array(merge_request);
 }
 
@@ -102,15 +102,49 @@ fn insertion_sort(unsorted_array: &[i32]) -> (Vec<i32>, Vec<Vec<i32>>) {
     (tmp_array, steps)
 }
 
-fn merge_sort(unsorted_array: &[i32], p: usize, q: usize, r: usize) -> (Vec<i32>, Vec<Vec<i32>>) {
-    let mut tmp_array = unsorted_array.to_owned();
-    let mut steps = vec![];
+fn merge_sort(unsorted_array: &[i32]) -> Vec<i32> {
+    // TODO: somehow represent the steps taken to merge sort an array
+    let tmp_array = unsorted_array.to_owned();
 
-    let halfway_point: usize = (tmp_array.len() as f32 / 2.0).floor() as usize;
+    if tmp_array.len() == 1 {
+        tmp_array
+    } else {
+        let size = tmp_array.len() / 2;
+        let left = merge_sort(&tmp_array[0..size]);
+        let right = merge_sort(&tmp_array[size..]);
 
-    let l = tmp_array.slice();
+        merge(&left, &right)
+    }
+}
 
-    (tmp_array, steps)
+fn merge(left: &Vec<i32>, right: &Vec<i32>) -> Vec<i32> {
+    let mut i = 0;
+    let mut j = 0;
+    let mut merged: Vec<i32> = vec![];
+
+    while i < left.len() && j < right.len() {
+        if left[i] < right[j] {
+            merged.push(left[i]);
+            i += 1;
+        } else {
+            merged.push(right[j]);
+            j += 1;
+        }
+    }
+
+    if i < left.len() {
+        while i < left.len() {
+            merged.push(left[i]);
+            i += 1;
+        }
+    } else if j < right.len() {
+        while j < right.len() {
+            merged.push(right[j]);
+            j += 1;
+        }
+    }
+
+    merged
 }
 
 fn pretty_print_struct(object: &SortingRequest) {
@@ -140,7 +174,7 @@ fn sort_array(mut object: SortingRequest) {
             (object.sorted_array, object.steps) = insertion_sort(&object.unsorted_array);
         }
         AlgorithmKind::Merge => {
-            // (object.sorted_array, object.steps) = merge_sort(&object.unsorted_array);
+            object.sorted_array = merge_sort(&object.unsorted_array);
         }
     }
 
