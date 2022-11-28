@@ -1,9 +1,12 @@
+use std::cmp::Ordering;
+
 #[derive(Debug)]
 enum AlgorithmKind {
     Bubble,
     Selection,
     Insertion,
     Merge,
+    Quick,
 }
 
 struct SortingRequest {
@@ -42,10 +45,18 @@ fn main() {
         steps: vec![],
     };
 
+    let quick_request = SortingRequest {
+        unsorted_array: vec![8, 7, 6, 1, 0, 9, 2],
+        sorted_array: vec![],
+        algorithm: AlgorithmKind::Quick,
+        steps: vec![],
+    };
+
     sort_array(bubble_request);
     sort_array(selection_request);
     sort_array(insertion_request);
     sort_array(merge_request);
+    sort_array(quick_request);
 }
 
 fn bubble_sort(unsorted_array: &[i32]) -> (Vec<i32>, Vec<Vec<i32>>) {
@@ -117,6 +128,34 @@ fn merge_sort(unsorted_array: &[i32]) -> Vec<i32> {
     }
 }
 
+fn quick_sort(arr: &Vec<i32>) -> Vec<i32> {
+    let tmp_array = arr.to_owned();
+
+    if arr.len() < 2 {
+        tmp_array
+    } else {
+        let middle_index = tmp_array.len() / 2;
+        let pivot = tmp_array[middle_index];
+
+        let mut lesser = vec![];
+        let mut equal = vec![];
+        let mut greater = vec![];
+
+        for element in tmp_array {
+            match element.cmp(&pivot) {
+                Ordering::Greater => greater.push(element),
+                Ordering::Equal => equal.push(element),
+                Ordering::Less => lesser.push(element),
+            }
+        }
+
+        let left = quick_sort(&lesser);
+        let right = quick_sort(&greater);
+
+        [&left[..], &equal[..], &right[..]].concat()
+    }
+}
+
 fn merge(left: &Vec<i32>, right: &Vec<i32>) -> Vec<i32> {
     let mut i = 0;
     let mut j = 0;
@@ -175,6 +214,9 @@ fn sort_array(mut object: SortingRequest) {
         }
         AlgorithmKind::Merge => {
             object.sorted_array = merge_sort(&object.unsorted_array);
+        }
+        AlgorithmKind::Quick => {
+            object.sorted_array = quick_sort(&object.unsorted_array);
         }
     }
 
